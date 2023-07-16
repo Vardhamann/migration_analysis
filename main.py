@@ -9,7 +9,9 @@ def average_step_displacement(step_delta):
     negative_steps = [step for step in step_delta if step < 0]
     avg_positive = sum(positive_steps) / len(positive_steps) if positive_steps else 0
     avg_negative = sum(negative_steps) / len(negative_steps) if negative_steps else 0
-    return avg_positive, avg_negative
+    num_positive = len(positive_steps)
+    num_negative = len(negative_steps)
+    return avg_positive, avg_negative, num_positive, num_negative
 
 
 def calculate_velocity(displacement, time):
@@ -40,7 +42,7 @@ def analyze_tracks(tracked_data, output_file):
     for track, track_data in tracked_data.groupby('Track no'):
         final_x_axis_displacement = track_data['X'].iloc[26] - track_data['X'].iloc[0]
         step_delta = np.diff(track_data['X'])
-        avg_positive_step_displacement, avg_negative_step_displacement = average_step_displacement(step_delta)
+        avg_positive_step_displacement, avg_negative_step_displacement, num_positive_steps, num_negative_steps = average_step_displacement(step_delta)
 
         velocity_change = np.diff(track_data['X'])
         velocity = calculate_velocity(final_x_axis_displacement, 12)  # Assuming 12 units of time
@@ -54,6 +56,8 @@ def analyze_tracks(tracked_data, output_file):
         output_file.write(f'  Xf-Xi: {final_x_axis_displacement}\n')
         output_file.write(f'  Average +ve Step Displacement: {avg_positive_step_displacement}\n')
         output_file.write(f'  Average -ve Step Displacement: {avg_negative_step_displacement}\n')
+        output_file.write(f'  Number of +ve Steps: {num_positive_steps}\n')
+        output_file.write(f'  Number of -ve Steps: {num_negative_steps}\n')
         output_file.write(f'  Velocity: {velocity}\n')
         output_file.write(f'  Velocity Change: {velocity_change}\n')
         output_file.write(f'  Track Length: {track_length}\n\n')
