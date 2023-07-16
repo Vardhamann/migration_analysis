@@ -51,8 +51,7 @@ with open(output_file_path, 'w') as output_file:
             print(f'\nTactic index = {final_ti}\n')
             output_file.write(f'\nTactic index = {final_ti}\n')
 
-            grouped_data = tracked_data.groupby('Track no')
-            for track, track_data in grouped_data:
+            for track, track_data in tracked_data.groupby('Track no'):
                 dx = track_data['X'].iloc[26] - track_data['X'].iloc[0]
                 if dx > 0:
                     step_delta = np.diff(track_data['X'])
