@@ -88,7 +88,7 @@ def analyze_tracks(tracked_data, output_file):
     avg_negative_velocity_change = np.mean(avg_negative_velocity_changes)
     avg_positive_track_length = np.mean(avg_positive_track_lengths)
     avg_negative_track_length = np.mean(avg_negative_track_lengths)
-    final_tactic_index = (negative_cell_count - positive_cell_count)/(negative_cell_count + positive_cell_count)
+    final_tactic_index = (negative_cell_count - positive_cell_count) / (negative_cell_count + positive_cell_count)
 
     output_file.write('Average Values:\n\n')
     output_file.write(f'Number of Positive Cells: {positive_cell_count}\n')
@@ -104,6 +104,27 @@ def analyze_tracks(tracked_data, output_file):
     output_file.write(f'Average -ve Velocity Change: {avg_negative_velocity_change}\n')
     output_file.write(f'Average +ve Track Length: {avg_positive_track_length}\n')
     output_file.write(f'Average -ve Track Length: {avg_negative_track_length}\n')
+
+
+def calculate_tactic_index_over_time(tracked_data):
+    tactic_index_overtime = []
+    for i in range(1, 26, 1):
+        positive_cell_count = 0
+        negative_cell_count = 0
+        for track, track_data in tracked_data.groupby('Track no'):
+            instant_x_axis_displacement = track_data['X'].iloc[i] - track_data['X'].iloc[0]
+            # Categorize the values based on displacement sign
+            if instant_x_axis_displacement > 0:
+                positive_cell_count += 1
+            elif instant_x_axis_displacement < 0:
+                negative_cell_count += 1
+
+        #print(f' instance {i} and {positive_cell_count} & {negative_cell_count}')
+        tactic_index_inst = (negative_cell_count - positive_cell_count) / (negative_cell_count + positive_cell_count)
+        tactic_index_overtime.append(tactic_index_inst)
+    #print(tactic_index_overtime)
+
+    return tactic_index_overtime
 
 
 input_folder_path = './input_files/'  # Replace with the path to your folder
@@ -122,3 +143,9 @@ with open(output_file_path, 'w') as output_file:
 
             tracked_data = pd.read_csv(file_path)
             analyze_tracks(tracked_data, output_file)
+
+            ## add one more loop to have tracks only
+            tactic_index_values = calculate_tactic_index_over_time(tracked_data)
+            output_file.write('Tactic Index Over Time:\n')
+            for i, tactic_index in enumerate(tactic_index_values):
+                output_file.write(f'Time Step {i+1}: {tactic_index}\n')
