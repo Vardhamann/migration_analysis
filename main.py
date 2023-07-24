@@ -24,13 +24,49 @@ def average_step_displacement(x):
     return avg_positive, avg_negative, num_positive, num_negative
 
 
-def calculate_velocity(displacement, time):
-    return displacement / time
+def calculate_velocity(x, y, time):
+    x_diplacement = x.iloc[26] - x.iloc[0]
+    y_diplacement = y.iloc[26] - y.iloc[0]
+    x_sign = math.copysign(1, x_diplacement)
+    y_sign = math.copysign(1, y_diplacement)
+    velocity_x = x_diplacement / time
+    velocity_y = y_diplacement / time
+    velocity = math.sqrt(velocity_x ** 2 +velocity_y ** 2)
+    velocity_direction = (velocity, x_sign, y_sign)
+    return velocity_direction
 
+def calculate_speed(x, y, time):
+    total_distance = np.sum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
+    return total_distance / time
 
-def calculate_track_length(x, y):
-    distance = np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2)
+def calculate_x_axis_velocity(x, time):
+    velocity = (x.iloc[26] - x.iloc[0])/time
+    return velocity
+
+def calculate_x_axis_speed(x, time):
+    distance = np.sum(np.sqrt(np.diff(x) ** 2))
+    speed = distance /time
+    return speed
+
+def calculate_track_length_distance(x, y):
+    distance = np.sum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
     return np.sum(distance)
+
+def calculate_track_length_displacement(x, y):
+    distance = np.sqrt((x.iloc[26]-x.iloc[0]) ** 2 + (y.iloc[26]-y.iloc[0]) ** 2)
+    return np.sum(distance)
+
+def calculate_track_length_distance_x(x):
+    distance = np.sqrt(np.diff(x) ** 2) ### CAN PLOT THE DISTANCE OF ALL CELLS
+    return np.sum(distance)
+
+def calculate_track_length_displacement_x(x):
+    distance = np.sqrt((x.iloc[26]-x.iloc[0]) ** 2)
+    return np.sum(distance)
+
+def calculate_persistence(vel,speed):
+    persistence = vel/speed
+    return persistence
 
 
 def analyze_tracks(tracked_data, output_file):
