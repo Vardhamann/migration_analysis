@@ -76,8 +76,10 @@ def analyze_tracks(tracked_data, output_file):
     negative_avg_negative_step_displacements = []
     avg_positive_velocities = []
     avg_negative_velocities = []
-    avg_positive_track_lengths = []
-    avg_negative_track_lengths = []
+    avg_positive_track_lengths_displacement = []
+    avg_negative_track_lengths_displacement = []
+    avg_positive_track_lengths_distance = []
+    avg_negative_track_lengths_distance = []
     positive_cell_count = 0
     negative_cell_count = 0
 
@@ -124,17 +126,21 @@ def analyze_tracks(tracked_data, output_file):
         output_file.write(f'  Track Length(distance): {track_length_distance}\n')
         output_file.write(f'  Track Length(displacement): {track_length_displacement}\n')
         output_file.write(f'  Track Length(distance) X axis: {track_length_distance_x}\n')
-        output_file.write(f'  Track Length(displacement) X axis: {track_length_displacement_x}\n')
+        output_file.write(f'  Track Length(displacement) X axis: {track_length_displacement_x}\n\n')
 
         # Categorize the values based on displacement sign
         if final_x_axis_displacement > 0:
             positive_avg_positive_step_displacements.append(avg_positive_step_displacement)
             positive_avg_negative_step_displacements.append(avg_negative_step_displacement)
+            avg_positive_track_lengths_displacement.append(track_length_displacement_x)
+            avg_positive_track_lengths_distance.append(track_length_distance_x)
             avg_positive_velocities.append(velocity)
             positive_cell_count += 1
         elif final_x_axis_displacement < 0:
             negative_avg_positive_step_displacements.append(avg_positive_step_displacement)
             negative_avg_negative_step_displacements.append(avg_negative_step_displacement)
+            avg_negative_track_lengths_displacement.append(track_length_displacement_x)
+            avg_negative_track_lengths_distance.append(track_length_distance_x)
             avg_negative_velocities.append(velocity)
             negative_cell_count += 1
 
@@ -144,8 +150,10 @@ def analyze_tracks(tracked_data, output_file):
     negative_avg_negative_step_displacement = np.mean(negative_avg_negative_step_displacements)
     avg_positive_velocity = np.mean(avg_positive_velocities)
     avg_negative_velocity = np.mean(avg_negative_velocities)
-    avg_positive_track_length = np.mean(avg_positive_track_lengths)
-    avg_negative_track_length = np.mean(avg_negative_track_lengths)
+    avg_positive_track_length_displacement = np.mean(avg_positive_track_lengths_displacement)
+    avg_negative_track_length_displacement = np.mean(avg_negative_track_lengths_displacement)
+    avg_positive_track_length_distance = np.mean(avg_positive_track_lengths_distance)
+    avg_negative_track_length_distance = np.mean(avg_negative_track_lengths_distance)
     final_tactic_index = (negative_cell_count - positive_cell_count) / (negative_cell_count + positive_cell_count)
 
     output_file.write('Average Values:\n\n')
@@ -158,9 +166,10 @@ def analyze_tracks(tracked_data, output_file):
     output_file.write(f'Average -ve Step Displacement (Negative DX): {negative_avg_negative_step_displacement}\n')
     output_file.write(f'Average +ve Velocity: {avg_positive_velocity}\n')
     output_file.write(f'Average -ve Velocity: {avg_negative_velocity}\n')
-    output_file.write(f'Average +ve Track Length: {avg_positive_track_length}\n')
-    output_file.write(f'Average -ve Track Length: {avg_negative_track_length}\n')
-
+    output_file.write(f'Average +ve Track Length X axis (displacement): {avg_positive_track_length_displacement}\n')
+    output_file.write(f'Average -ve Track Length X axis (displacement): {avg_negative_track_length_displacement}\n')
+    output_file.write(f'Average +ve Track Length X axis (distance): {avg_positive_track_length_distance}\n')
+    output_file.write(f'Average -ve Track Length X axis (distance): {avg_negative_track_length_distance}\n\n')
 
 def calculate_tactic_index_over_time(tracked_data):
     tactic_index_overtime = []
