@@ -2,11 +2,21 @@ import pandas as pd
 import numpy as np
 import os
 import datetime
+import math
+
+## TODOS
+
+# Figure out time input.
+# PLOTS.
+# Cells with zero distance between slices.???
 
 
-def average_step_displacement(step_delta):
-    positive_steps = [step for step in step_delta if step > 0]
-    negative_steps = [step for step in step_delta if step < 0]
+# function definitions
+
+def average_step_displacement(x):
+    step_delta = np.diff(x)
+    positive_steps = [step for step in step_delta if step > 0] #count number of positive steps
+    negative_steps = [step for step in step_delta if step < 0] #count number of negative steps
     avg_positive = sum(positive_steps) / len(positive_steps) if positive_steps else 0
     avg_negative = sum(negative_steps) / len(negative_steps) if negative_steps else 0
     num_positive = len(positive_steps)
