@@ -76,8 +76,6 @@ def analyze_tracks(tracked_data, output_file):
     negative_avg_negative_step_displacements = []
     avg_positive_velocities = []
     avg_negative_velocities = []
-    avg_positive_velocity_changes = []
-    avg_negative_velocity_changes = []
     avg_positive_track_lengths = []
     avg_negative_track_lengths = []
     positive_cell_count = 0
@@ -86,17 +84,30 @@ def analyze_tracks(tracked_data, output_file):
     output_file.write('Individual Track Values:\n\n')
 
     for track, track_data in tracked_data.groupby('Track no'):
-        final_x_axis_displacement = track_data['X'].iloc[26] - track_data['X'].iloc[0]
-        step_delta = np.diff(track_data['X'])
-        avg_positive_step_displacement, avg_negative_step_displacement, num_positive_steps, num_negative_steps = average_step_displacement(step_delta)
-
-        velocity_change = np.diff(track_data['X'])
-        velocity = calculate_velocity(final_x_axis_displacement, 12)  # Assuming 12 units of time
 
         x = track_data['X']
         y = track_data['Y']
+        final_x_axis_displacement = track_data['X'].iloc[26] - track_data['X'].iloc[0] # to evaluate which cells are positive vs negative
 
-        track_length = calculate_track_length(x, y)
+
+        avg_positive_step_displacement, avg_negative_step_displacement, num_positive_steps, num_negative_steps = average_step_displacement(x)
+
+        # Calculate total Velocity and Speed
+        velocity = calculate_velocity(x, y, 13)  # Assuming 13 units of time
+        speed = calculate_speed(x, y, 13)  # Assuming 13 units of time
+
+        # Calculate X-axis Velocity and Speed
+        x_axis_velocity = calculate_x_axis_velocity(x, 13)  # Assuming 13 units of time
+        x_axis_speed = calculate_x_axis_speed(x, 13)  # Assuming 13 units of time
+
+        track_length_distance = calculate_track_length_distance(x, y)
+        track_length_displacement = calculate_track_length_displacement(x, y)
+        track_length_distance_x = calculate_track_length_distance_x(x)
+        track_length_displacement_x = calculate_track_length_displacement_x(x)
+
+        # Calculate Persistence
+        persistence_xy = calculate_persistence(velocity, speed)
+        persistence_x = calculate_persistence(x_axis_velocity, x_axis_speed)
 
         output_file.write(f'Track: {track}\n')
         output_file.write(f'  Xf-Xi: {final_x_axis_displacement}\n')
@@ -105,23 +116,26 @@ def analyze_tracks(tracked_data, output_file):
         output_file.write(f'  Number of +ve Steps: {num_positive_steps}\n')
         output_file.write(f'  Number of -ve Steps: {num_negative_steps}\n')
         output_file.write(f'  Velocity: {velocity}\n')
-        output_file.write(f'  Velocity Change: {velocity_change}\n')
-        output_file.write(f'  Track Length: {track_length}\n\n')
+        output_file.write(f'  Speed: {speed}\n')
+        output_file.write(f'  X-axis Velocity: {x_axis_velocity}\n')
+        output_file.write(f'  X-axis Speed: {x_axis_speed}\n')
+        output_file.write(f'  Persistence (X&Y): {persistence_xy}\n')
+        output_file.write(f'  Persistence (X): {persistence_x}\n')
+        output_file.write(f'  Track Length(distance): {track_length_distance}\n')
+        output_file.write(f'  Track Length(displacement): {track_length_displacement}\n')
+        output_file.write(f'  Track Length(distance) X axis: {track_length_distance_x}\n')
+        output_file.write(f'  Track Length(displacement) X axis: {track_length_displacement_x}\n')
 
         # Categorize the values based on displacement sign
         if final_x_axis_displacement > 0:
             positive_avg_positive_step_displacements.append(avg_positive_step_displacement)
             positive_avg_negative_step_displacements.append(avg_negative_step_displacement)
             avg_positive_velocities.append(velocity)
-            avg_positive_velocity_changes.extend(velocity_change)
-            avg_positive_track_lengths.append(track_length)
             positive_cell_count += 1
         elif final_x_axis_displacement < 0:
             negative_avg_positive_step_displacements.append(avg_positive_step_displacement)
             negative_avg_negative_step_displacements.append(avg_negative_step_displacement)
             avg_negative_velocities.append(velocity)
-            avg_negative_velocity_changes.extend(velocity_change)
-            avg_negative_track_lengths.append(track_length)
             negative_cell_count += 1
 
     positive_avg_positive_step_displacement = np.mean(positive_avg_positive_step_displacements)
@@ -130,8 +144,6 @@ def analyze_tracks(tracked_data, output_file):
     negative_avg_negative_step_displacement = np.mean(negative_avg_negative_step_displacements)
     avg_positive_velocity = np.mean(avg_positive_velocities)
     avg_negative_velocity = np.mean(avg_negative_velocities)
-    avg_positive_velocity_change = np.mean(avg_positive_velocity_changes)
-    avg_negative_velocity_change = np.mean(avg_negative_velocity_changes)
     avg_positive_track_length = np.mean(avg_positive_track_lengths)
     avg_negative_track_length = np.mean(avg_negative_track_lengths)
     final_tactic_index = (negative_cell_count - positive_cell_count) / (negative_cell_count + positive_cell_count)
@@ -146,8 +158,6 @@ def analyze_tracks(tracked_data, output_file):
     output_file.write(f'Average -ve Step Displacement (Negative DX): {negative_avg_negative_step_displacement}\n')
     output_file.write(f'Average +ve Velocity: {avg_positive_velocity}\n')
     output_file.write(f'Average -ve Velocity: {avg_negative_velocity}\n')
-    output_file.write(f'Average +ve Velocity Change: {avg_positive_velocity_change}\n')
-    output_file.write(f'Average -ve Velocity Change: {avg_negative_velocity_change}\n')
     output_file.write(f'Average +ve Track Length: {avg_positive_track_length}\n')
     output_file.write(f'Average -ve Track Length: {avg_negative_track_length}\n')
 
