@@ -11,17 +11,23 @@ def plot_relative_position(df, file_identifier):
     # Calculate average X and Y positions for positive, negative, and no movement cells at each slice number
     avg_positions = df.groupby(['Slice no', 'Cell Type']).agg({'Relative X Position': 'mean', 'Relative Y Position': 'mean'})
 
-    # Individual tracks in grey color
-    for track_no, group_df in df.groupby('Track no'):
-        fig.add_trace(go.Scatter(x=group_df['Relative X Position'], y=group_df['Relative Y Position'], mode='lines', line=dict(color='lightgrey'), showlegend=False))
+    # # Individual tracks in grey color
+    # for track_no, group_df in df.groupby('Track no'):
+    #     fig.add_trace(go.Scatter(x=group_df['Relative X Position'], y=group_df['Relative Y Position'], mode='lines', line=dict(color='lightgrey'), showlegend=False))
 
-    # Add average lines for each cell type
-    if ('Positive' in avg_positions.index.get_level_values('Cell Type')):
-        fig.add_trace(go.Scatter(x=avg_positions.loc[(slice(None), 'Positive'), 'Relative X Position'], y=avg_positions.loc[(slice(None), 'Positive'), 'Relative Y Position'], mode='lines', name='Avg Positive', line=dict(color='green')))
-    if ('Negative' in avg_positions.index.get_level_values('Cell Type')):
-        fig.add_trace(go.Scatter(x=avg_positions.loc[(slice(None), 'Negative'), 'Relative X Position'], y=avg_positions.loc[(slice(None), 'Negative'), 'Relative Y Position'], mode='lines', name='Avg Negative', line=dict(color='red')))
-    if ('No movement' in avg_positions.index.get_level_values('Cell Type')):
-        fig.add_trace(go.Scatter(x=avg_positions.loc[(slice(None), 'No movement'), 'Relative X Position'], y=avg_positions.loc[(slice(None), 'No movement'), 'Relative Y Position'], mode='lines', name='Avg No movement', line=dict(color='blue')))
+    # Individual tracks with color differentiation
+    for track_no, group_df in df.groupby('Track no'):
+        cell_type = group_df['Cell Type'].iloc[0]  # Get the cell type for the track
+        line_color = 'rgba(0,128,0,0.3)' if cell_type == 'Positive' else 'rgba(255,0,0,0.3)' if cell_type == 'Negative' else 'rgb(0,0,255,0.3)'
+        fig.add_trace(go.Scatter(x=group_df['Relative X Position'], y=group_df['Relative Y Position'], mode='lines', line=dict(color=line_color), showlegend=False))
+
+    # # Add average lines for each cell type
+    # if ('Positive' in avg_positions.index.get_level_values('Cell Type')):
+    #     fig.add_trace(go.Scatter(x=avg_positions.loc[(slice(None), 'Positive'), 'Relative X Position'], y=avg_positions.loc[(slice(None), 'Positive'), 'Relative Y Position'], mode='lines', name='Avg Positive', line=dict(color='green')))
+    # if ('Negative' in avg_positions.index.get_level_values('Cell Type')):
+    #     fig.add_trace(go.Scatter(x=avg_positions.loc[(slice(None), 'Negative'), 'Relative X Position'], y=avg_positions.loc[(slice(None), 'Negative'), 'Relative Y Position'], mode='lines', name='Avg Negative', line=dict(color='red')))
+    # if ('No movement' in avg_positions.index.get_level_values('Cell Type')):
+    #     fig.add_trace(go.Scatter(x=avg_positions.loc[(slice(None), 'No movement'), 'Relative X Position'], y=avg_positions.loc[(slice(None), 'No movement'), 'Relative Y Position'], mode='lines', name='Avg No movement', line=dict(color='blue')))
 
     # Find the maximum absolute value among X and Y positions
     max_abs_value = max(abs(df['Relative X Position'].max()), abs(df['Relative X Position'].min()),

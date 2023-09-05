@@ -56,7 +56,6 @@ def plot_relative_x_position_matplotlib(df, file_identifier):
     ax.set_ylabel('Relative X Position')
     ax.grid(True)  # Add gridlines
     ax.set_yscale('symlog')  # Set y-axis to symlog scale
-    ax.set_xscale('symlog')  # Set y-axis to symlog scale
 
     # Move the legend outside the plot to the right (x=1.02) and center vertically (y=0.5)
     ax.legend(bbox_to_anchor=(1.02, 0.5), loc='center left')
@@ -103,7 +102,7 @@ def read_and_process_files(input_folder_path):
                 file_identifier = filename[-5]  # Assuming the unique identifier is the last character before ".csv"
                 tracked_data = pd.read_csv(file_path)
                 result_df = step_displacement_counter(tracked_data)
-                plot_relative_x_position_matplotlib(result_df, file_identifier)
+                #plot_relative_x_position_matplotlib(result_df, file_identifier)
                 plot_relative_x_position(result_df, file_identifier)
                 all_data.append(result_df)
             except pd.errors.EmptyDataError:
